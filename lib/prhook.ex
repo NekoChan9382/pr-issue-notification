@@ -1,19 +1,19 @@
 defmodule Prhook do
-  @moduledoc """
-  Documentation for `Prhook`.
-  """
+  def get_api_data(query, token \\ System.get_env("GITHUB_TOKEN")) do
+    res =
+      Req.new(
+        url: "https://api.github.com/graphql",
+        headers: [{"Authrization", "Bearer " <> token}, {"content-type", "application/json"}],
+        json: %{query: query}
+      )
+      |> Req.post()
 
-  @doc """
-  Hello world.
+    case res do
+      {:ok, %Req.Response{status: 200, body: body}} -> {:ok, body}
+    end
+  end
 
-  ## Examples
-
-      iex> Prhook.hello()
-      :world
-
-  """
   def hello do
-    _js = "{\"query\":\"{ search(query: \"is:pr review-requested:@me\", type: ISSUE, first: 100) { issueCount nodes { ... on PullRequest { number title url repository { nameWithOwner url } } } } }\"}"
     :world
   end
 end
