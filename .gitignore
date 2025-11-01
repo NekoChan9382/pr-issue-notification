@@ -26,3 +26,5 @@ prhook-*.tar
 /tmp/
 
 .vscode/
+
+cursor.md
