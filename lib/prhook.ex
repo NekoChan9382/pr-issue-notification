@@ -1,4 +1,11 @@
 defmodule Prhook do
+  def webhook_json_fields(issue_name, issue_url) do
+    %{
+      name: issue_name,
+      value: issue_url
+    }
+  end
+
   def get_api_data(query, token \\ System.get_env("GITHUB_TOKEN")) do
     res =
       Req.new(
@@ -37,6 +44,19 @@ defmodule Prhook do
           end)
       }
     end)
+  end
+
+  def make_discord_msg(data) do
+    %{
+      embeds: [
+        %{
+          title: data.repository.name,
+          url: data.repository.url,
+          fields:
+            Enum.map(data.issues, &webhook_json_fields(&1.number <> " " <> &1.title, &1.url))
+        }
+      ]
+    }
   end
 
   def hello do
