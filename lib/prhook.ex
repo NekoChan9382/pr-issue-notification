@@ -1,4 +1,22 @@
 defmodule Prhook do
+  def query do
+    """
+    query {
+      search(query: "is:pr review-requested:@me", type: ISSUE, first: 100) {
+        issueCount
+        nodes {
+          ... on PullRequest {
+            number
+            title
+            url
+            repository { nameWithOwner url }
+          }
+        }
+      }
+    }
+    """
+  end
+
   def webhook_json_fields(issue_name, issue_url) do
     %{
       name: issue_name,
@@ -10,13 +28,15 @@ defmodule Prhook do
     res =
       Req.new(
         url: "https://api.github.com/graphql",
-        headers: [{"Authrization", "Bearer " <> token}, {"content-type", "application/json"}],
+        headers: [{"Authorization", "Bearer " <> token}, {"content-type", "application/json"}],
         json: %{query: query}
       )
       |> Req.post()
 
     case res do
       {:ok, %Req.Response{status: 200, body: body}} -> {:ok, body}
+      {:ok, %Req.Response{status: status, body: body}} -> {:error, status, body}
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -50,16 +70,29 @@ defmodule Prhook do
     %{
       embeds: [
         %{
-          title: data.repository.name,
-          url: data.repository.url,
+          title: get_in(data, [:repository, :name]),
+          url: get_in(data, [:repository, :url]),
           fields:
-            Enum.map(data.issues, &webhook_json_fields(&1.number <> " " <> &1.title, &1.url))
+            Enum.map(
+              get_in(data, [:issues]),
+              fn issue ->
+                webhook_json_fields(
+                  # issue[:number] <> " " <> issue[:title],
+                  issue[:title],
+                  issue[:url]
+                )
+              end
+            )
         }
       ]
     }
   end
 
   def hello do
-    :world
+    case get_api_data(query()) do
+      {:ok, body} -> parse_body(body) |> Enum.map(fn data -> make_discord_msg(data) end)
+      {:error, status, body} -> {:error, status, body}
+      {:error, reason} -> {:error, reason}
+    end
   end
 end
