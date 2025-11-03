@@ -70,15 +70,15 @@ defmodule Prhook do
     %{
       embeds: [
         %{
-          title: get_in(data, [:repository, :name]),
+          title: "Pull Request on " <> get_in(data, [:repository, :name]),
           url: get_in(data, [:repository, :url]),
           fields:
             Enum.map(
               get_in(data, [:issues]),
               fn issue ->
                 webhook_json_fields(
-                  # issue[:number] <> " " <> issue[:title],
-                  issue[:title],
+                  # issue[:number] <> " " <> issue[:title],"
+                  "#" <> to_string(issue[:number]) <> " " <> issue[:title],
                   issue[:url]
                 )
               end
@@ -88,11 +88,32 @@ defmodule Prhook do
     }
   end
 
+  def send_webhook(msg, url \\ System.get_env("DISCORD_WEBHOOK_URL")) do
+    res =
+      Req.new(
+        url: url,
+        headers: [{"content-type", "application/json"}],
+        json: msg
+      )
+      |> Req.post()
+
+    case res do
+      {:ok, %Req.Response{status: 204}} -> :ok
+      {:ok, %Req.Response{status: status, body: body}} -> {:error, status, body}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
   def hello do
     case get_api_data(query()) do
-      {:ok, body} -> parse_body(body) |> Enum.map(fn data -> make_discord_msg(data) end)
-      {:error, status, body} -> {:error, status, body}
-      {:error, reason} -> {:error, reason}
+      {:ok, body} ->
+        parse_body(body) |> Enum.map(fn data -> make_discord_msg(data) |> send_webhook() end)
+
+      {:error, status, body} ->
+        {:error, status, body}
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 end

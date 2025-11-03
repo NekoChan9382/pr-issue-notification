@@ -28,3 +28,4 @@ prhook-*.tar
 .vscode/
 
 cursor.md
+env.sh
