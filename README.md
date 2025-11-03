@@ -1,6 +1,8 @@
 # PR Issue Nofitication
 自分に紐づいた GitHub の Pull Request（レビュー依頼）や Issue を取得し、Discord の Webhook へ通知します。
 
+※このツールは現在開発中です
+
 毎日0時(JST)に現在レビュー依頼が出ているプルリクエストをリポジトリごとに送信します
 
 ## セットアップ
