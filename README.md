@@ -25,6 +25,7 @@ forkなどを用いてリポジトリを作成してください
 1. リポジトリの**Settings**にアクセス
 2. **Secrets and variables -> Actions** を選択
 3. New repository secret をクリックして以下の値を追加
+
 | Name | Secret | 説明 |
 | ---  | ---    | --- |
 | `GH_TOKEN` | `ghp_xxxxx` | 取得したPAT |
