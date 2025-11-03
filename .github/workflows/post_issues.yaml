@@ -1,0 +1,32 @@
+name: Post Issues/Pull Requests
+
+on:
+  schedule:
+    - cron: "0 15 * * *"
+  workflow_dispatch:
+
+jobs:
+  post-issues:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Erlang, Elixir
+        users: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.19.2"
+          otp-version: "28.1.1"
+      
+      - name: Install Dependencies
+        run: mix deps.get
+
+      - name: Compile Project
+        run: mix compile
+
+      - name: Run app
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+        run: mix run -e "PrIssueNotify.main()"
