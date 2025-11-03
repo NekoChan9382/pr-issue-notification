@@ -1,4 +1,4 @@
-defmodule Prhook do
+defmodule PrIssueNotify do
   def query do
     """
     query {
