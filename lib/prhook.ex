@@ -2,7 +2,7 @@ defmodule Prhook do
   def query do
     """
     query {
-      search(query: "is:pr review-requested:@me", type: ISSUE, first: 100) {
+      search(query: "is:pr is:open review-requested:@me", type: ISSUE, first: 100) {
         issueCount
         nodes {
           ... on PullRequest {
@@ -82,7 +82,8 @@ defmodule Prhook do
                   issue[:url]
                 )
               end
-            )
+            ),
+          color: 0x8957E5
         }
       ]
     }
@@ -104,7 +105,7 @@ defmodule Prhook do
     end
   end
 
-  def hello do
+  def main do
     case get_api_data(query()) do
       {:ok, body} ->
         parse_body(body) |> Enum.map(fn data -> make_discord_msg(data) |> send_webhook() end)
