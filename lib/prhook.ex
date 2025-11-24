@@ -2,18 +2,37 @@ defmodule PrIssueNotify do
   def query do
     """
     query {
-      search(query: "is:pr is:open review-requested:@me", type: ISSUE, first: 100) {
+      reviewRequestedPr: search(query: "is:pr review-requested:@me", type: ISSUE, first: 100) {
         issueCount
         nodes {
           ... on PullRequest {
             number
             title
             url
-            repository { nameWithOwner url }
+            repository {
+              nameWithOwner
+              url
+            }
+          }
+        }
+      }
+
+      assignedIssues: search(query: "is:issue is:open assignee:@me", type: ISSUE, first: 100) {
+        issueCount
+        nodes {
+          ... on Issue {
+            number
+            title
+            url
+            repository {
+              nameWithOwner
+              url
+            }
           }
         }
       }
     }
+
     """
   end
 
@@ -41,7 +60,7 @@ defmodule PrIssueNotify do
   end
 
   def parse_body(body) do
-    nodes = get_in(body, ["data", "search", "nodes"]) || []
+    nodes = get_in(body, ["data", "assignedIssues", "nodes"]) || []
 
     nodes
     |> Enum.group_by(&get_in(&1, ["repository", "nameWithOwner"]))
