@@ -52,6 +52,27 @@ defmodule PrIssueNotify do
     end)
   end
 
+  def make_summary_msg(body_data) do
+    summary =
+      body_data
+      |> Enum.map(fn {type, data} ->
+        count = data["issueCount"] || 0
+        label = Config.get_label(type)
+        "#{label}: **#{count}**"
+      end)
+      |> Enum.join("\n")
+
+    %{
+      embeds: [
+        %{
+          title: "PR Issue Summary",
+          description: summary,
+          color: 0x5865F2
+        }
+      ]
+    }
+  end
+
   def make_discord_msg(data) do
     %{
       embeds: [
@@ -94,9 +115,12 @@ defmodule PrIssueNotify do
   def main do
     case get_api_data(Queries.query()) do
       {:ok, body} ->
-        body["data"]
-        |> Enum.map(fn data ->
-          parse_body(data)
+        data = body["data"]
+        make_summary_msg(data) |> send_webhook()
+
+        data
+        |> Enum.map(fn item ->
+          parse_body(item)
           |> Enum.map(fn data -> make_discord_msg(data) |> send_webhook() end)
         end)
 
