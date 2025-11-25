@@ -1,40 +1,5 @@
 defmodule PrIssueNotify do
-  def query do
-    """
-    query {
-      reviewRequestedPr: search(query: "is:pr review-requested:@me", type: ISSUE, first: 100) {
-        issueCount
-        nodes {
-          ... on PullRequest {
-            number
-            title
-            url
-            repository {
-              nameWithOwner
-              url
-            }
-          }
-        }
-      }
-
-      assignedIssues: search(query: "is:issue is:open assignee:@me", type: ISSUE, first: 100) {
-        issueCount
-        nodes {
-          ... on Issue {
-            number
-            title
-            url
-            repository {
-              nameWithOwner
-              url
-            }
-          }
-        }
-      }
-    }
-
-    """
-  end
+  alias PrIssueNotify.Queries
 
   def webhook_json_fields(issue_name, issue_url) do
     %{
@@ -60,7 +25,7 @@ defmodule PrIssueNotify do
   end
 
   def parse_body(body) do
-    nodes = get_in(body, ["data", "assignedIssues", "nodes"]) || []
+    nodes = get_in(body, ["assignedIssues", "nodes"]) || []
 
     nodes
     |> Enum.group_by(&get_in(&1, ["repository", "nameWithOwner"]))
@@ -125,9 +90,13 @@ defmodule PrIssueNotify do
   end
 
   def main do
-    case get_api_data(query()) do
+    case get_api_data(Queries.query()) do
       {:ok, body} ->
-        parse_body(body) |> Enum.map(fn data -> make_discord_msg(data) |> send_webhook() end)
+        body["data"]
+        |> Enum.map(fn data ->
+          parse_body(data)
+          |> Enum.map(fn data -> make_discord_msg(data) |> send_webhook() end)
+        end)
 
       {:error, status, body} ->
         {:error, status, body}

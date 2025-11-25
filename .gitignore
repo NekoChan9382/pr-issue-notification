@@ -27,5 +27,5 @@ prhook-*.tar
 
 .vscode/
 
-cursor.md
+.github/copilot-instructions.md
 env.sh
