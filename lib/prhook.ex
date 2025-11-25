@@ -1,5 +1,6 @@
 defmodule PrIssueNotify do
   alias PrIssueNotify.Queries
+  alias PrIssueNotify.Config
 
   def webhook_json_fields(issue_name, issue_url) do
     %{
@@ -55,7 +56,7 @@ defmodule PrIssueNotify do
     %{
       embeds: [
         %{
-          title: "Pull Request on " <> get_in(data, [:repository, :name]),
+          title: Config.get_label(data.type) <> " on " <> get_in(data, [:repository, :name]),
           url: get_in(data, [:repository, :url]),
           fields:
             Enum.map(
@@ -68,7 +69,7 @@ defmodule PrIssueNotify do
                 )
               end
             ),
-          color: 0x8957E5
+          color: Config.get_color(data.type)
         }
       ]
     }
