@@ -2,7 +2,7 @@ defmodule PrIssueNotify.Queries do
   @review_requested_name "reviewRequestedPr"
   @assigned_issues_name "assignedIssues"
 
-  @review_requested_query "is:pr review-requested:@me"
+  @review_requested_query "is:pr is:open review-requested:@me"
   @assigned_issues_query "is:issue is:open assignee:@me"
 
   @query_template """
