@@ -25,15 +25,16 @@ defmodule PrIssueNotify do
   end
 
   def parse_body(body) do
-    nodes = get_in(body, ["assignedIssues", "nodes"]) || []
+    {type, nodes} = body
 
-    nodes
+    nodes["nodes"]
     |> Enum.group_by(&get_in(&1, ["repository", "nameWithOwner"]))
     |> Enum.map(fn {repo_name, issues} ->
       first_issue = List.first(issues)
       repo_url = get_in(first_issue, ["repository", "url"])
 
       %{
+        type: type,
         repository: %{
           name: repo_name,
           url: repo_url
