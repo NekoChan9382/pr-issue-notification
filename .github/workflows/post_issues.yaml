@@ -29,4 +29,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           DISCORD_WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          DISCORD_UID: ${{ secrets.DISCORD_UID }}
         run: mix run -e "PrIssueNotify.main()"
