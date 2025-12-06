@@ -23,6 +23,12 @@ forkなどを用いてリポジトリを作成してください
 2. 名前、アイコン等を適宜設定
 3. **ウェブフックURLをコピー**
 
+#### Discord ユーザーIDの取得(Optional)
+メッセージでメンションを行いたい場合に行ってください
+
+1. **詳細設定 -> 開発者モード** を有効化
+2. **マイ アカウント** -> ユーザー名の右側にある3点リーダーをクリック
+3. **ユーザーIDをコピー** をクリック
 ### GitHub Secretsに環境変数を設定
 1. リポジトリの**Settings**にアクセス
 2. **Secrets and variables -> Actions** を選択
@@ -32,7 +38,7 @@ forkなどを用いてリポジトリを作成してください
 | ---  | ---    | --- |
 | `GH_TOKEN` | `ghp_xxxxx` | 取得したPAT |
 | `WEBHOOK_URL` | `https://discord/com/api/webhooks/...` | Discord WebhookのURL |
-
+| `DISCORD_UID` | `123456...` | (Optional) メンション先のDiscordユーザーID |
 ## 動作
 ### 手動テスト
 1. **Actions** を開く
