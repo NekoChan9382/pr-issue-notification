@@ -53,9 +53,11 @@ defmodule PrIssueNotify do
   end
 
   def make_summary_msg(body_data) do
+    uid = System.get_env("DISCORD_UID")
+
     summary =
-      if System.get_env("DISCORD_UID") do
-        "<@#{System.get_env("DISCORD_UID")}>\n"
+      if uid && uid != "" do
+        "<@#{uid}>\n"
       else
         ""
       end
