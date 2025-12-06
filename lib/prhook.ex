@@ -54,13 +54,21 @@ defmodule PrIssueNotify do
 
   def make_summary_msg(body_data) do
     summary =
-      body_data
-      |> Enum.map(fn {type, data} ->
-        count = data["issueCount"] || 0
-        label = Config.get_label(type)
-        "#{label}: **#{count}**"
-      end)
-      |> Enum.join("\n")
+      if System.get_env("DISCORD_UID") do
+        "<@#{System.get_env("DISCORD_UID")}>\n"
+      else
+        ""
+      end
+
+    summary =
+      summary <>
+        (body_data
+         |> Enum.map(fn {type, data} ->
+           count = data["issueCount"] || 0
+           label = Config.get_label(type)
+           "#{label}: **#{count}**"
+         end)
+         |> Enum.join("\n"))
 
     %{
       embeds: [
